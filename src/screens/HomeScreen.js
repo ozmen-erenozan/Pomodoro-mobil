@@ -1,19 +1,56 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import FocusSettings from '../components/FocusSettings';
+import FocusTimer from '../components/FocusTimer';
 
 const HomeScreen = () => {
+  // --- STATE (DURUM) ---
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('Ders Çalışma');
+  const [workTime, setWorkTime] = useState(25); // Dakika cinsinden ayar
+  const [timeLeft, setTimeLeft] = useState(25 * 60); // Saniye cinsinden kalan süre
+
+  // --- YARDIMCI FONKSİYONLAR ---
+  
+  const handleTimeChange = (amount) => {
+    const newTime = workTime + amount;
+    if (newTime > 0 && newTime <= 120) {
+      setWorkTime(newTime);
+      setTimeLeft(newTime * 60); // Ayar değişince kalan süreyi de güncelle
+    }
+  };
+
+  const handleStart = () => {
+    setTimeLeft(workTime * 60); // Başlarken süreyi saniyeye çevirip ayarla
+    setTimerRunning(true);
+    // Timer mantığı buraya eklenecek (Sonraki adım)
+  };
+
+  const handleStop = () => {
+    setTimerRunning(false);
+  };
+
   return (
     <View style={styles.container}>
-      {/* Başlık */}
-      <Text style={styles.title}>Pomodoro</Text>
+      <Text style={styles.headerTitle}>Odaklanma Takibi</Text>
 
-      {/* Başla Butonu */}
-      <TouchableOpacity 
-        style={styles.button}
-        onPress={() => alert('Henüz kategori seçimi ekranı hazır değil')}
-      >
-        <Text style={styles.buttonText}>BAŞLA</Text>
-      </TouchableOpacity>
+      {!timerRunning ? (
+        // Component 1: Ayarlar
+        <FocusSettings 
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          workTime={workTime}
+          onTimeChange={handleTimeChange}
+          onStart={handleStart}
+        />
+      ) : (
+        // Component 2: Sayaç
+        <FocusTimer 
+          selectedCategory={selectedCategory}
+          timeLeft={timeLeft}
+          onStop={handleStop}
+        />
+      )}
     </View>
   );
 };
@@ -21,26 +58,19 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5F5F5',
+    padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 40,
+  headerTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 50,
     color: '#333',
-  },
-  button: {
-    backgroundColor: '#007AFF', // Mavi buton
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 30,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+    position: 'absolute', 
+    top: 60,
   },
 });
 
