@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const ReportsScreen = () => {
   return (
     <View style={styles.container}>
-      <Text>Raporlar Sayfası (Yapılacak)</Text>
+      <Text>Raporlar Sayfası Yapılacak</Text>
     </View>
   );
 };
