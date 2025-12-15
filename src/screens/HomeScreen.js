@@ -42,7 +42,7 @@ const HomeScreen = () => {
     if (timerRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
-      }, 1000);
+      }, 10);
     } else if (timeLeft === 0) {
       setTimerRunning(false);
       handleSessionComplete();
