@@ -2,67 +2,66 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Alert, AppState } from 'react-native';
 import FocusSettings from '../components/FocusSettings';
 import FocusTimer from '../components/FocusTimer';
+// YENİ: Storage servisini içe aktar
+import { saveSession } from '../utils/storage';
 
 const HomeScreen = () => {
-  // --- STATE (DURUM) ---
-  const [isSessionActive, setIsSessionActive] = useState(false); // Oturum başladı mı?
-  const [timerRunning, setTimerRunning] = useState(false);       // Sayaç akıyor mu? (Duraklatma için)
+  const [isSessionActive, setIsSessionActive] = useState(false);
+  const [timerRunning, setTimerRunning] = useState(false);
   
   const [selectedCategory, setSelectedCategory] = useState('Ders Çalışma');
   const [workTime, setWorkTime] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
-
-  const [distractionCount, setDistractionCount] = useState(0); // Dikkat Dağınıklığı Sayısı
+  const [distractionCount, setDistractionCount] = useState(0);
   
-  // AppState takibi için referans (Active, Background, Inactive)
   const appState = useRef(AppState.currentState);
 
-  // --- 1. SAYAÇ MANTIĞI (TIMER LOGIC) ---
+  // --- KAYIT FONKSİYONU ---
+  const saveCurrentSession = async (completed) => {
+    // Geçen süreyi hesapla (Toplam süre - Kalan süre)
+    const timeSpentSeconds = (workTime * 60) - timeLeft;
+    const timeSpentMinutes = Math.floor(timeSpentSeconds / 60);
+
+    // Eğer 1 dakikadan az çalışıldıysa kaydetme (Gereksiz veri olmasın)
+    if (timeSpentMinutes < 1) return;
+
+    const sessionData = {
+      id: Date.now(), // Benzersiz ID
+      date: new Date().toISOString(), // Bugünün tarihi
+      category: selectedCategory,
+      duration: timeSpentMinutes, // Dakika cinsinden süre
+      distractionCount: distractionCount,
+      status: completed ? 'Tamamlandı' : 'Yarıda Kesildi'
+    };
+
+    await saveSession(sessionData);
+  };
+
   useEffect(() => {
     let interval = null;
-
     if (timerRunning && timeLeft > 0) {
-      // Sayaç çalışıyorsa her 1 saniyede bir süreyi azalt
       interval = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
+        setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0) {
-      // Süre bittiyse durdur
       setTimerRunning(false);
-      handleSessionComplete(); // Seansı bitirme fonksiyonunu çağır
+      handleSessionComplete();
     }
-
-    // Temizlik (Component kapanırsa sayacı durdur)
     return () => clearInterval(interval);
   }, [timerRunning, timeLeft]);
 
-  // --- 2. DİKKAT DAĞINIKLIĞI MANTIĞI (APP STATE) ---
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
-      
-      // Eğer uygulama 'active' durumundan 'background' (arka plan) durumuna geçerse
-      if (
-        appState.current.match(/active/) && 
-        (nextAppState === 'background' || nextAppState === 'inactive')
-      ) {
-        // SADECE sayaç çalışıyorsa müdahale et
+      if (appState.current.match(/active/) && (nextAppState === 'background' || nextAppState === 'inactive')) {
         if (timerRunning) {
-          console.log("Uygulama arka plana atıldı! Sayaç durduruluyor...");
-          setTimerRunning(false); // Sayacı otomatik duraklat 
-          setDistractionCount(prev => prev + 1); // Hatayı 1 artır 
+          setTimerRunning(false);
+          setDistractionCount(prev => prev + 1);
         }
       }
-
       appState.current = nextAppState;
     });
-
-    return () => {
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, [timerRunning]);
-
-
-  // --- BUTON FONKSİYONLARI ---
 
   const handleTimeChange = (amount) => {
     const newTime = workTime + amount;
@@ -74,37 +73,48 @@ const HomeScreen = () => {
 
   const handleStart = () => {
     setTimeLeft(workTime * 60);
-    setDistractionCount(0); // Hata sayacını sıfırla
-    setIsSessionActive(true); // Ekranı değiştir
-    setTimerRunning(true);    // Sayacı başlat
+    setDistractionCount(0);
+    setIsSessionActive(true);
+    setTimerRunning(true);
   };
 
   const handlePauseResume = () => {
-    setTimerRunning(!timerRunning); // Tersine çevir (Başlat/Durdur)
+    setTimerRunning(!timerRunning);
   };
 
+  // GÜNCELLENEN: Durdurma Fonksiyonu
   const handleStop = () => {
-    // Kullanıcıya soralım: Emin misin?
     Alert.alert(
       "Seansı Bitir",
-      "Pes mi ediyorsun? Bu seans kaydedilmeyecek.",
+      "Şu ana kadar odaklandığın süre kaydedilsin mi?",
       [
         { text: "Vazgeç", style: "cancel" },
         { 
-          text: "Evet, Bitir", 
+          text: "Kaydetmeden Bitir", 
           style: "destructive", 
           onPress: () => {
              setIsSessionActive(false);
              setTimerRunning(false);
-             // İleride buraya "Yarım kalan seansı kaydetme" mantığı eklenebilir
+          }
+        },
+        { 
+          text: "Kaydet ve Bitir", 
+          onPress: async () => {
+             await saveCurrentSession(false); // false = tamamlanmadı
+             setIsSessionActive(false);
+             setTimerRunning(false);
           }
         }
       ]
     );
   };
 
-  // Seans süresi dolunca çalışacak fonksiyon
-  const handleSessionComplete = () => {
+  // GÜNCELLENEN: Tamamlama Fonksiyonu
+  const handleSessionComplete = async () => {
+    // Önce kaydet
+    await saveCurrentSession(true); // true = tamamlandı
+
+    // Sonra tebrik et
     Alert.alert(
       "Tebrikler! 🎉",
       `Odaklanma tamamlandı!\nKategori: ${selectedCategory}\nDikkat Dağınıklığı: ${distractionCount} kez`,
@@ -112,7 +122,6 @@ const HomeScreen = () => {
         text: "Harika", 
         onPress: () => {
           setIsSessionActive(false); 
-          // BURADA VERİYİ KAYDEDECEĞİZ (Sonraki Faz)
         } 
       }]
     );
@@ -121,9 +130,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>Odaklanma Takibi</Text>
-
       {!isSessionActive ? (
-        // Component 1: Ayarlar
         <FocusSettings 
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
@@ -132,7 +139,6 @@ const HomeScreen = () => {
           onStart={handleStart}
         />
       ) : (
-        // Component 2: Sayaç
         <FocusTimer 
           selectedCategory={selectedCategory}
           timeLeft={timeLeft}
