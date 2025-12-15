@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native'; // Sayfa her açıldığında çalışması için
+import { View, Text, StyleSheet, ScrollView, Dimensions, Alert, TouchableOpacity } from 'react-native'; // Alert ve TouchableOpacity eklendi
+import { useFocusEffect } from '@react-navigation/native';
 import { BarChart, PieChart } from 'react-native-chart-kit';
-import { getSessions } from '../utils/storage'; // Verileri çekeceğimiz fonksiyon
+import { getSessions, clearSessions } from '../utils/storage'; // clearSessions eklendi
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -93,6 +93,24 @@ const ReportsScreen = () => {
     setPieData(pData);
     setLoading(false);
   };
+  // --- VERİ SİLME FONKSİYONU ---
+  const handleClearData = () => {
+    Alert.alert(
+      "Verileri Sıfırla",
+      "Tüm odaklanma geçmişiniz silinecek. Emin misiniz?",
+      [
+        { text: "Vazgeç", style: "cancel" },
+        { 
+          text: "Evet, Hepsini Sil", 
+          style: "destructive",
+          onPress: async () => {
+            await clearSessions(); // Veritabanını temizle
+            loadData(); // Ekranı yenile (her şey 0 olacak)
+          }
+        }
+      ]
+    );
+  };
 
   // Sayfa her odaklandığında verileri yeniden yükle
   useFocusEffect(
@@ -160,6 +178,12 @@ const ReportsScreen = () => {
       ) : (
         <Text style={styles.noDataText}>Henüz veri yok. Bir seans tamamlayın!</Text>
       )}
+      {/* --- SİLME BUTONU --- */}
+      <TouchableOpacity style={styles.clearButton} onPress={handleClearData}>
+        <Text style={styles.clearButtonText}>TÜM VERİLERİ SİL / SIFIRLA</Text>
+      </TouchableOpacity>
+
+      <View style={{ height: 50 }} />
 
       <View style={{ height: 50 }} /> 
     </ScrollView>
@@ -225,6 +249,20 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 20,
     fontStyle: 'italic',
+  },
+  clearButton: {
+    backgroundColor: '#FFEBEE',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: '#FF5252',
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: '#FF5252',
+    fontWeight: 'bold',
+    fontSize: 14,
   }
 });
 

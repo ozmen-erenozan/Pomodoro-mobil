@@ -18,10 +18,10 @@ const FocusSettings = ({
           selectedValue={selectedCategory}
           onValueChange={(itemValue) => setSelectedCategory(itemValue)}
         >
-          <Picker.Item label="📚 Ders Çalışma" value="Ders Çalışma" />
-          <Picker.Item label="💻 Kodlama" value="Kodlama" />
-          <Picker.Item label="📖 Kitap Okuma" value="Kitap Okuma" />
-          <Picker.Item label="🚀 Proje" value="Proje" />
+          <Picker.Item label=" Ders Çalışma" value="Ders Çalışma" />
+          <Picker.Item label=" Kodlama" value="Kodlama" />
+          <Picker.Item label=" Kitap Okuma" value="Kitap Okuma" />
+          <Picker.Item label=" Proje" value="Proje" />
         </Picker>
       </View>
 
