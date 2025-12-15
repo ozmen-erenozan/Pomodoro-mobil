@@ -11,7 +11,7 @@ const FocusSettings = ({
   onTimeChange, 
   onStart 
 }) => {
-  // Yeni kategori ekleme modu açık mı?
+  
   const [isAdding, setIsAdding] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
 

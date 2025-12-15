@@ -173,7 +173,7 @@ const ReportsScreen = () => {
           accessor={"population"}
           backgroundColor={"transparent"}
           paddingLeft={"15"}
-          absolute // Değerleri mutlak sayı olarak göster
+          absolute 
         />
       ) : (
         <Text style={styles.noDataText}>Henüz veri yok. Bir seans tamamlayın!</Text>

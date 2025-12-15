@@ -14,7 +14,7 @@ export default function App() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false, // Üstteki varsayılan başlığı gizle
-          tabBarIconStyle: { display: "none" }, // Şimdilik ikonlarla uğraşmayalım
+          tabBarIconStyle: { display: "none" }, 
           tabBarLabelStyle: { fontSize: 15, paddingBottom: 15 }
         }}
       >

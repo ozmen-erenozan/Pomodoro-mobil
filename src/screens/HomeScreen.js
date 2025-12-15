@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Alert, AppState } from 'react-native';
 import FocusSettings from '../components/FocusSettings';
 import FocusTimer from '../components/FocusTimer';
-// YENİ: Storage servisini içe aktar
+// YENİ: Storage servisini içeaktar
 import { saveSession } from '../utils/storage';
 
 const HomeScreen = () => {
@@ -10,10 +10,8 @@ const HomeScreen = () => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [categories, setCategories] = useState([
     ' Ders Çalışma',      
-    ' Kitap Okuma', 
-    
-  ]);
-  
+    ' Kitap Okuma',     
+  ]);  
   const [selectedCategory, setSelectedCategory] = useState(categories[0]); 
   const [workTime, setWorkTime] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -47,7 +45,7 @@ const HomeScreen = () => {
     if (timerRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
-      }, 10);
+      }, 1000);
     } else if (timeLeft === 0) {
       setTimerRunning(false);
       handleSessionComplete();

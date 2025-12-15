@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 const FocusTimer = ({ 
   selectedCategory, 
   timeLeft, 
-  timerRunning,    // Yeni: Sayacın durup durmadığını bilmemiz lazım
+  timerRunning,    // Yeni: Sayacın durup durmadığı bilgsisi
   onPauseResume,   // Yeni: Duraklat/Devam Et fonksiyonu
   onStop 
 }) => {
