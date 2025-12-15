@@ -8,8 +8,13 @@ import { saveSession } from '../utils/storage';
 const HomeScreen = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
+  const [categories, setCategories] = useState([
+    ' Ders Çalışma',      
+    ' Kitap Okuma', 
+    
+  ]);
   
-  const [selectedCategory, setSelectedCategory] = useState('Ders Çalışma');
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]); 
   const [workTime, setWorkTime] = useState(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [distractionCount, setDistractionCount] = useState(0);
@@ -62,6 +67,13 @@ const HomeScreen = () => {
     });
     return () => subscription.remove();
   }, [timerRunning]);
+  // YENİ: Kategori Ekleme Fonksiyonu
+  const handleAddCategory = (newCategory) => {
+    // Eğer listede zaten yoksa ekle
+    if (!categories.includes(newCategory)) {
+      setCategories([...categories, newCategory]);
+    }
+  };
 
   const handleTimeChange = (amount) => {
     const newTime = workTime + amount;
@@ -132,8 +144,10 @@ const HomeScreen = () => {
       <Text style={styles.headerTitle}>Odaklanma Takibi</Text>
       {!isSessionActive ? (
         <FocusSettings 
+          categories={categories}              // <--- YENİ
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
+          onAddCategory={handleAddCategory}    // <--- YENİ
           workTime={workTime}
           onTimeChange={handleTimeChange}
           onStart={handleStart}

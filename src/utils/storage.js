@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Kayıt anahtarımız (Veritabanı tablosu gibi düşün)
+// Kayıt anahtarımız (Veritabanı tablosu gibi)
 const STORAGE_KEY = '@focus_sessions';
 
 /**
@@ -37,7 +37,7 @@ export const getSessions = async () => {
 };
 
 /**
- * (Opsiyonel) Tüm verileri siler - Test için
+ *  Tüm verileri siler - Test için
  */
 export const clearSessions = async () => {
   try {
